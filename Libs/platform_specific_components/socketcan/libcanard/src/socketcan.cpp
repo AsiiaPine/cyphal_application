@@ -34,19 +34,15 @@ namespace cyphal {
 
 static int16_t getNegatedErrno()
 {
-    const int out = -abs(errno);
-    if (out < 0)
-    {
-        if (out >= INT16_MIN)
-        {
-            return (int16_t) out;
-        }
-    }
-    else
-    {
+    const int errno_val = errno;
+    if (errno_val == 0) {
         assert(false);  // Requested an error when errno is zero?
+        return INT16_MIN;
     }
-    return INT16_MIN;
+    if (errno_val > INT16_MAX || errno_val < INT16_MIN) {
+        return INT16_MIN;
+    }
+    return -(int16_t)errno_val;
 }
 
 static int16_t doPoll(const SocketCANFD fd, const int16_t mask, const CanardMicrosecond timeout_usec)
